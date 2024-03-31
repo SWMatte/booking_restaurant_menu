@@ -5,10 +5,8 @@ CREATE TABLE IF NOT EXISTS `customer` (
     `last_name` VARCHAR(50) NOT NULL,
     `phone_number` VARCHAR(10),
     `address` VARCHAR(50) NOT NULL,
-    `id_user` int,
     PRIMARY KEY (`id_customer`)
 );
-
 CREATE TABLE IF NOT EXISTS `user` (
   `id_user` int NOT NULL AUTO_INCREMENT,
   `email` varchar(255) UNIQUE NOT NULL,
@@ -33,23 +31,21 @@ CREATE TABLE IF NOT EXISTS `product` (
     FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`)
 );
 
+
 CREATE TABLE IF NOT EXISTS `order` (
     `id_order` int NOT NULL AUTO_INCREMENT,
     `number_order` int NOT NULL UNIQUE,
     `email_customer` VARCHAR(50) NOT NULL,
     `address_customer` VARCHAR(50),
-    `image_product` VARCHAR(50),
     PRIMARY KEY (`id_order`),
     `id_product` INT NOT NULL,
     FOREIGN KEY (`id_product`) REFERENCES `product`(`id_product`)
 );
 
 CREATE TABLE IF NOT EXISTS `pdf` (
-    `id_pdf` int NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (`id_pdf`),
-    `name_pdf` VARCHAR(255) NOT NULL,
-    id_order INT NOT NULL,
-    FOREIGN KEY (`id_order`) REFERENCES `order`(`id_order`)
-
- );
-
+      `id_pdf` int NOT NULL AUTO_INCREMENT,
+      PRIMARY KEY (`id_pdf`),
+      `name_pdf` VARCHAR(255) NOT NULL,
+      id_order INT NOT NULL,
+      FOREIGN KEY (`id_order`) REFERENCES `order`(`id_order`)
+   );
