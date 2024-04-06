@@ -1,12 +1,14 @@
 package restaurant.menu.entities;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Entity
 @Data
+@Builder
 public class Order {
 
     @Id
