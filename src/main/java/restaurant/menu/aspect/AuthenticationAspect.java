@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import restaurant.menu.entities.User;
 import restaurant.menu.entities.dto.AuthenticationResponse;
+import restaurant.menu.entities.dto.OrderRequestDTO;
 import restaurant.menu.service.imp.UserService;
 import restaurant.menu.service.token.JwtService;
 
@@ -69,7 +70,8 @@ public class AuthenticationAspect {
         log.info("Extracting the id from the token");
         int id = Integer.parseInt(jwtService.extractStringId(jwt));
         log.info("Finding the user with the extracted id!");
-        User userById = null;
+        jwtService.extractEmail(jwt);
+         User userById = null;
         try{
             userById = userService.findById(id);
             if(!Arrays.asList(auth.roles()).isEmpty() && !Arrays.stream(auth.roles()).toList().contains(userById.getRole())){
@@ -85,6 +87,7 @@ public class AuthenticationAspect {
             if (args[i] instanceof User) {
                 args[i] = userById;
             }
+            //TODO: VEDERE COME UTILIZZARE L'EMAIL RECUPERATA DAL USER PER PASSARLA NELL'ORDER CHE SERVE PER CREARE IL CART FINALE, probabilmente prendi e modfichi nellaspect quando è un istanza di order cosi che il controller ha gia tutto popolato
         }
         log.info("Passo l'user al controller");
         return joinPoint.proceed(args);

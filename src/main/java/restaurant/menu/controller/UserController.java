@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import restaurant.menu.aspect.Authorized;
+import restaurant.menu.entities.Customer;
 import restaurant.menu.entities.RegisterResponse;
 import restaurant.menu.entities.Role;
 import restaurant.menu.entities.User;
 import restaurant.menu.entities.dto.AuthenticationRequest;
 import restaurant.menu.entities.dto.AuthenticationResponse;
+import restaurant.menu.entities.dto.CustomerRequestDTO;
 import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.token.AuthenticationService;
 
@@ -39,19 +41,34 @@ public class UserController {
     @Autowired
     private final AuthenticationService authenticationService;
 
+    @Autowired
+    private final CrudOperation<Customer> customerCrudOperation;
+
 
     @PostMapping("/register")
-    public RegisterResponse register(@RequestBody User request) throws Exception {
+    public RegisterResponse register(@RequestBody CustomerRequestDTO request) throws Exception {
         log.info("Starting method register in class: " + getClass());
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .deleteFlag(false)
-                .build();
+
         try {
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(request.getRole())
+                    .deleteFlag(false)
+                    .build();
+
+
+            Customer customer = Customer.builder()
+                    .address(request.getAddress())
+                    .name(request.getName())
+                    .lastName(request.getLastName())
+                    .phoneNumber(request.getPhoneNumber())
+                    .user(user)
+                    .build();
+
             log.info("Starting save the user...");
             crudOperation.addElement(user);
+            customerCrudOperation.addElement(customer);
             log.info("User saved successfully!");
             return new RegisterResponse(true);
         } catch (Exception e) {
@@ -61,11 +78,7 @@ public class UserController {
     }
 
 
-
-
-
     @PostMapping("/login")
-    @Authorized(roles = {Role.ADMINISTRATOR,Role.CUSTOMER})
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
         log.info("Trying to authenticate the user!");
         try {

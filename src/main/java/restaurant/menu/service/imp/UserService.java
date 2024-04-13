@@ -19,11 +19,8 @@ public class UserService implements CrudOperation<User>, UserSecurity {
 
     @Autowired
     private UserRepository userRepository;
-
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
 
     @Override
     public void addElement(User element) {
@@ -56,7 +53,7 @@ public class UserService implements CrudOperation<User>, UserSecurity {
         log.info("Start method findById {}", UserService.class);
         User user;
         try {
-            return user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+            return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
         } catch (EntityNotFoundException e) {
             log.error("Entity with id : {} not available in repository", id);

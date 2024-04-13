@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +18,7 @@ public class Order {
     private int idOrder;
 
     @Column(name = "number_order")
-    private int numberOrder;
+    private String numberOrder;
 
     @Column(name = "email_customer")
     private String emailCustomer;
@@ -25,6 +26,12 @@ public class Order {
     @Column(name = "address_customer")
     private String addressCustomer;
 
+    @Column(name = "date_order")
+    private LocalDate dateOrder;
+
+    @ManyToOne
+    @JoinColumn(name = "id_customer")
+    private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "id_product")

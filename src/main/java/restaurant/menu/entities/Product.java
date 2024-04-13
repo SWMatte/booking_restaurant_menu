@@ -14,7 +14,7 @@ public class Product {
     private int idProduct;
 
     @Column(name = "number_item")
-    private int numberItem;
+    private String numberItem;
 
 
     @Enumerated(EnumType.STRING)
