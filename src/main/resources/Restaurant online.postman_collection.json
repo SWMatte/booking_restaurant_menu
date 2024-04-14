@@ -1,0 +1,294 @@
+{
+	"info": {
+		"_postman_id": "1887fcf2-691f-4a80-b788-40ac6d8f1c4c",
+		"name": "Restaurant online",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29583492"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "add user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"a@b.it\",\r\n    \"password\": \"123\",\r\n    \"role\": \"ADMINISTRATOR\",\r\n    \"name\":\"Matteo\",\r\n    \"lastName\":\"Pier\",\r\n    \"phoneNumber\":\"33333333\",\r\n    \"address\":\"via pippo 12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/user/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authenticate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"a@b.it\",\r\n    \"password\": \"123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/user/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "Update customer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhQGIuaXQiLCJzdWIiOiIxIiwiaWF0IjoxNzEzMDc5NjE3LCJleHAiOjE3MTMwODMyMTd9.NpTBdNDXynATplqvLQRFxjyQiC1zbKXum39MxHjZ-pI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \"idCustomer\":3,\r\n    \"name\": \"aaa\",\r\n    \"lastName\": \"bb\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/customer/updateCustomer",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"customer",
+								"updateCustomer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhQGIuaXQiLCJzdWIiOiIxIiwiaWF0IjoxNzEzMDc5NjE3LCJleHAiOjE3MTMwODMyMTd9.NpTBdNDXynATplqvLQRFxjyQiC1zbKXum39MxHjZ-pI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/customer/deleteCustomer?id=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"customer",
+								"deleteCustomer"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "add product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhQGIuaXQiLCJzdWIiOiIxIiwiaWF0IjoxNzEzMDg0MjIxLCJleHAiOjE3MTMwODc4MjF9.Ctatw64I57JfHkyZxNaBQimB8h_wrEIBGl8plaxrKQo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\":\"PANINO\",\r\n    \"nameProduct\":\"pane al prosciutto\",\r\n    \"price\":12.53,\r\n    \"imageProduct\":\"http://wwww.paninoImmagini.it\",\r\n    \"user\":{\r\n        \"idUser\":1\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/product/addProduct",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"addProduct"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhQGIuaXQiLCJzdWIiOiIxIiwiaWF0IjoxNzEzMDc5NjE3LCJleHAiOjE3MTMwODMyMTd9.NpTBdNDXynATplqvLQRFxjyQiC1zbKXum39MxHjZ-pI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"idProduct\":1,\r\n    \"type\":\"PANINO\",\r\n    \"nameProduct\":\"pane al FORMAGGIO\",\r\n    \"price\":12.53,\r\n    \"imageProduct\":\"http://wwww.paninoImmagini.it\",\r\n    \"user\":{\r\n        \"idUser\":1\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/product/updateProduct",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"updateProduct"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "add order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhQGIuaXQiLCJzdWIiOiIxIiwiaWF0IjoxNzEzMDgyODUzLCJleHAiOjE3MTMwODY0NTN9.kU2MafkEgn0RtJqB3QhHRieeE2gnIUuSfZGu9Na6DgE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idProduct\":[1,2,3],\r\n    \"address\":\"via polli\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/order/addOrder",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"addOrder"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
