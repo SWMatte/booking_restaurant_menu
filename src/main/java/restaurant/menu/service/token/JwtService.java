@@ -21,29 +21,40 @@ import java.util.function.Function;
 @Slf4j
 public class JwtService {
 
- private final String KEY = "rNVeMQyseLeeezJ7Qj2KikfJ+pvKATQO2tOjgbzd05DdizhOOGsKqxWXrJ8CuwWWZxaT36VFcI4aYG7Un6bZfA==";
+    private final String KEY = "rNVeMQyseLeeezJ7Qj2KikfJ+pvKATQO2tOjgbzd05DdizhOOGsKqxWXrJ8CuwWWZxaT36VFcI4aYG7Un6bZfA==";
 
     public String extractStringId(String token) {
-        return extractClaim(token,Claims::getSubject);
+        return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
+    public String extractEmail(String token) {
+
+        Claims claims = extractAllClaims(token);
+        String email = (String) claims.get("email");
+        return email ;
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
 
-    public String generateToken(User user){
-        return generateToken(new HashMap<>(),user);
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", user.getIdUser());
+        claims.put("email", user.getEmail());
+        return generateToken(claims, user);
+
     }
 
-    public String generateToken(Map<String, Objects> extraClaims, User user){
+
+    public String generateToken(Map<String, Object> extraClaims, User user) {
         log.info("Start method generateToken in class: " + getClass());
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(String.valueOf(user.getIdUser()))
-                .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -51,15 +62,15 @@ public class JwtService {
     }
 
 
-    public boolean isTokenValid(String token){
-        try{
-            log.info("Starting method isTokenValid in class: " +getClass());
+    public boolean isTokenValid(String token) {
+        try {
+            log.info("Starting method isTokenValid in class: " + getClass());
             Jwts
                     .parserBuilder()
                     .setSigningKey(getSignInKey())
                     .build()
                     .parseClaimsJws(token);
-            if (!isTokenExpired(token)){
+            if (!isTokenExpired(token)) {
                 log.info("The token is valid!");
                 return true;
             }
@@ -85,7 +96,8 @@ public class JwtService {
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-    private Claims extractAllClaims(String token){
+
+    private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -93,6 +105,7 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(KEY);

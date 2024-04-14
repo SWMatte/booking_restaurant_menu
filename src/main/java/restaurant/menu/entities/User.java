@@ -28,9 +28,5 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne
-    @JoinColumn(name = "id_customer")
-    private Customer customer;
-
 }
 
