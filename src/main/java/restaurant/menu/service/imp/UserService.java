@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import restaurant.menu.common.Utils;
 import restaurant.menu.entities.User;
+import restaurant.menu.exception.CustomEntityNotFoundException;
 import restaurant.menu.repository.UserRepository;
 import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.UserSecurity;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserService implements CrudOperation<User>, UserSecurity {
+public class UserService implements  UserSecurity {
 
     @Autowired
     private UserRepository userRepository;
@@ -37,19 +38,27 @@ public class UserService implements CrudOperation<User>, UserSecurity {
         } catch (NullPointerException e) {
             log.error("{} value is null", element);
         }
-
-
     }
 
     @Override
-    public void updateElement(User element) {
-
+    public void updateElement(String email) {
+        try {
+            User user= userRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException());
+            user.setEmail(email);
+            userRepository.save(user);
+        }catch (EntityNotFoundException e){
+            log.error("Entity with email : {} not available in repository", email);
+            throw new CustomEntityNotFoundException("Entity not available");
+        }
     }
 
-    @Override
-    public void deleteElement(int id) {
+    /* TODO: fare un metodo per il cambio password con password encoder:
+    *   1) fai passare la vecchia passwrod e la nuova
+    *   2) se matcha aggiorna la password
+    *   3 ) restituisci messaggio password aggiornata
+    * */
 
-    }
+
 
     @Override
     public User findById(int id) {
@@ -62,7 +71,7 @@ public class UserService implements CrudOperation<User>, UserSecurity {
             log.error("Entity with id : {} not available in repository", id);
             user = null;
         }
-        return user;
+        return null;
     }
 
     @Override

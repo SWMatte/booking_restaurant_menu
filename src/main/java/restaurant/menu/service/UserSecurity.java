@@ -10,4 +10,7 @@ public interface UserSecurity {
     Optional<User> findByEmail(String email);
 
     User loadByUserId(String id);
+     void addElement(User element);
+
+     void updateElement(String email);
 }
