@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import restaurant.menu.common.Utils;
 import restaurant.menu.entities.Customer;
 import restaurant.menu.entities.Product;
+import restaurant.menu.exception.CustomEntityNotFoundException;
 import restaurant.menu.repository.CustomerRepository;
 import restaurant.menu.service.CrudOperation;
 
@@ -43,7 +44,7 @@ public class CustomerService implements CrudOperation<Customer> {
                 customerDB.setAddress(element.getAddress());
             }
             if (!Utils.nullElement(element.getLastName())) {
-                customerDB.setName(element.getLastName());
+                customerDB.setLastName(element.getLastName());
             }
             if (!Utils.nullElement(element.getPhoneNumber())) {
                 customerDB.setPhoneNumber(element.getPhoneNumber());
@@ -52,7 +53,9 @@ public class CustomerService implements CrudOperation<Customer> {
             log.info("Finished  method: updateElement");
         } catch (EntityNotFoundException e) {
             log.error("Error into {}, not found entity Customer with ID {}, stack error:{}", Customer.class, element.getIdCustomer(), e.getMessage());
-        }
+            String errorMessage = String.format("Error into %s, not found entity Customer with ID %s, stack error: %s", Customer.class, element.getIdCustomer(), e.getMessage());
+            throw new CustomEntityNotFoundException(errorMessage, e);
+         }
 
     }
 
@@ -63,8 +66,10 @@ public class CustomerService implements CrudOperation<Customer> {
             customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
             customerRepository.deleteById(id);
             log.info("Finished  method: addElement");
-        } catch (EntityNotFoundException e) {
+        }  catch (EntityNotFoundException e) {
             log.error("Error into {}, not found entity Customer with ID {}, stack error:{}", Customer.class, id, e.getMessage());
+            String errorMessage = String.format("Error into %s, not found entity Customer with ID %s, stack error: %s", Customer.class, id, e.getMessage());
+            throw new CustomEntityNotFoundException(errorMessage, e);
         }
     }
 }

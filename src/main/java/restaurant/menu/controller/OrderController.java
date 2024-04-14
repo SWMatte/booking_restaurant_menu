@@ -30,9 +30,10 @@ public class OrderController {
 
     @PostMapping("/addOrder")
     @Authorized(roles = {Role.ADMINISTRATOR,Role.CUSTOMER})
-    public ResponseEntity<?> registerOrder(@RequestBody OrderRequestDTO element, User user) {
+    public ResponseEntity<?> registerOrder(@RequestBody OrderRequestDTO element) {
         log.info("Starting method registerCustomer in class: " + getClass());
         try {
+
             orderOperation.addOrder(element);
              log.info("registerOrder saved with success!");
             return ResponseEntity.ok().body("Product added correctly");

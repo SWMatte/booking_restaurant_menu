@@ -86,9 +86,14 @@ public class AuthenticationAspect {
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof User) {
                 args[i] = userById;
+                break;
             }
-            //TODO: VEDERE COME UTILIZZARE L'EMAIL RECUPERATA DAL USER PER PASSARLA NELL'ORDER CHE SERVE PER CREARE IL CART FINALE, probabilmente prendi e modfichi nellaspect quando è un istanza di order cosi che il controller ha gia tutto popolato
-        }
+            if (args[i] instanceof OrderRequestDTO) {
+                ((OrderRequestDTO) args[i]).setEmailUser(userById.getEmail());
+                break;
+            }
+
+         }
         log.info("Passo l'user al controller");
         return joinPoint.proceed(args);
     }

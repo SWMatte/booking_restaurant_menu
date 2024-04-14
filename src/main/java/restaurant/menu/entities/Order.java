@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@Table(name = "orders")
 @Data
 @Builder
 public class Order {
@@ -30,12 +31,13 @@ public class Order {
     private LocalDate dateOrder;
 
     @ManyToOne
-    @JoinColumn(name = "id_customer")
-    private Customer customer;
-
-    @ManyToOne
     @JoinColumn(name = "id_product")
     private Product product;
+
+
+    // TODO: per risalire al customer che ha effettuato l'ordine con nome ecc, puoi utilizzare con la clausola with in sql
+    //       fai ritornare l'id user usando l'email che trovi nell'order quell'id lo usi nel customer per trovare nome congome di chi ha effettuato l'ordine
+    //      quindi puoi poi utilizzare quel dato per magari fare il cart o un riepilogo ( magari anche pdf)
 
 
 }

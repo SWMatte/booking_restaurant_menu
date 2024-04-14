@@ -10,6 +10,7 @@ import restaurant.menu.aspect.Authorized;
 import restaurant.menu.entities.Customer;
 import restaurant.menu.entities.Product;
 import restaurant.menu.entities.Role;
+import restaurant.menu.exception.CustomEntityNotFoundException;
 import restaurant.menu.service.CrudOperation;
 
 /**
@@ -33,9 +34,9 @@ public class CustomerController {
             customerCrudOperation.updateElement(element);
             log.info("UpdateCustomer saved with success!");
             return ResponseEntity.ok().body("Customer updated correctly");
-        } catch (Exception e) {
+        } catch (CustomEntityNotFoundException e) {
             log.error("Can't update the Customer: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ e.getMessage());
 
         }
     }
@@ -48,9 +49,9 @@ public class CustomerController {
             customerCrudOperation.deleteElement(id);
             log.info("DeleteCustomer finished correctly");
             return ResponseEntity.ok().body("Customer deleted correctly");
-        } catch (Exception e) {
+        }catch (CustomEntityNotFoundException e) {
             log.error("Can't delete the Customer: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ e.getMessage());
 
         }
     }
