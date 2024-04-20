@@ -1,7 +1,13 @@
 package restaurant.menu.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +21,9 @@ import restaurant.menu.entities.*;
 import restaurant.menu.entities.dto.AuthenticationRequest;
 import restaurant.menu.entities.dto.AuthenticationResponse;
 import restaurant.menu.entities.dto.CustomerRequestDTO;
+import restaurant.menu.entities.dto.PasswordDTo;
 import restaurant.menu.exception.CustomEntityNotFoundException;
+import restaurant.menu.exception.PasswordEncoderException;
 import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.UserSecurity;
 import restaurant.menu.service.token.AuthenticationService;
@@ -28,6 +36,7 @@ import restaurant.menu.service.token.AuthenticationService;
 @RequestMapping("/user")
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "Product controller", description = "The role of this controller is keep all endpoints about customer, every endpoint require a specific authentication")
 public class UserController {
 
     @Autowired
@@ -44,7 +53,17 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public RegisterResponse register(@RequestBody CustomerRequestDTO request) throws Exception {
+    @Operation(
+            summary = "this endpoint works to register customers and set them one authentication",
+            tags = {"userController", "post/register"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = User.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
+    public RegisterResponse register(
+            @Parameter(description = "ClassDTO to register the customer", required = true) @RequestBody CustomerRequestDTO request) throws Exception {
         log.info("Starting method register in class: " + getClass());
 
         try {
@@ -76,6 +95,15 @@ public class UserController {
 
 
     @PostMapping("/login")
+    @Operation(
+            summary = "this endpoint works to allow the login for customers and supply them the token to allow to call other endpoint",
+            tags = {"userController", "post/login"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ResponseEntity.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
         log.info("Trying to authenticate the user!");
         try {
@@ -89,7 +117,16 @@ public class UserController {
 
 
     @PatchMapping("/updateEmail")
+    @Operation(
+            summary = "this endpoint allow to update the email of customer",
+            tags = {"userController", "patch/login"}
+    )
     @Authorized(roles = {Role.ADMINISTRATOR})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ResponseEntity.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
     public ResponseEntity<?> updateEmail(@RequestParam String email) {
         log.info("Starting method updateProduct in class: " + getClass());
         try {
@@ -101,6 +138,35 @@ public class UserController {
             return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST);
 
         }
+    }
+
+
+    @PostMapping("/changePassword")
+    @Operation(
+            summary = "this endpoint allow to change the password",
+            tags = {"userController", "post/changePassword"}
+    )
+    @Authorized(roles = {Role.ADMINISTRATOR})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = ResponseEntity.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
+    public ResponseEntity<?> changePassword(@RequestBody PasswordDTo passwordDTo) {
+        try {
+            crudOperation.changePassword(passwordDTo);
+            return ResponseEntity.ok("Password changed correctly");
+
+        } catch (PasswordEncoderException e) {
+            return ResponseEntity.badRequest().body(e);
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.badRequest().body(e);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

@@ -7,7 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import restaurant.menu.common.Utils;
 import restaurant.menu.entities.User;
+import restaurant.menu.entities.dto.PasswordDTo;
 import restaurant.menu.exception.CustomEntityNotFoundException;
+import restaurant.menu.exception.PasswordEncoderException;
 import restaurant.menu.repository.UserRepository;
 import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.UserSecurity;
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserService implements  UserSecurity {
+public class UserService implements UserSecurity {
 
     @Autowired
     private UserRepository userRepository;
@@ -40,21 +42,37 @@ public class UserService implements  UserSecurity {
     @Override
     public void updateElement(String email) {
         try {
-            User user= userRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException());
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException());
             user.setEmail(email);
             userRepository.save(user);
-        }catch (EntityNotFoundException e){
+        } catch (EntityNotFoundException e) {
             log.error("Entity with email : {} not available in repository", email);
             throw new CustomEntityNotFoundException("Entity not available");
         }
     }
 
-    /* TODO: fare un metodo per il cambio password con password encoder:
-    *   1) fai passare la vecchia passwrod e la nuova
-    *   2) se matcha aggiorna la password
-    *   3 ) restituisci messaggio password aggiornata
-    * */
+    @Override
+    public void changePassword(PasswordDTo passwordDTo) throws Exception{
+        try {
+            log.info("Try to retrieve the old password");
+            User user = userRepository.findByPassword(passwordDTo.getOldPassword()).orElseThrow(() -> new EntityNotFoundException());
+            if (passwordEncoder.matches(user.getPassword(), passwordDTo.getOldPassword())) {
+                String newPassword = passwordEncoder.encode(passwordDTo.getNewPassword());
+                user.setPassword(newPassword);
+                userRepository.save(user);
+                log.info("Password changed correctly");
+            } else {
+                throw new PasswordEncoderException();
+            }
 
+        } catch (EntityNotFoundException    e) {
+            log.error("Error with change password");
+            throw new CustomEntityNotFoundException("Password doesn't match with entity");
+        }catch (PasswordEncoderException e){
+            throw new PasswordEncoderException("Password doesn't match");
+
+        }
+    }
 
 
     @Override

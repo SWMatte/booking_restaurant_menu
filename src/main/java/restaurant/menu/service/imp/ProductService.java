@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import restaurant.menu.common.Utils;
 import restaurant.menu.entities.Product;
 import restaurant.menu.entities.User;
+import restaurant.menu.exception.CustomEntityNotFoundException;
+import restaurant.menu.exception.EntityDeletedException;
 import restaurant.menu.repository.ProdcutRepository;
 import restaurant.menu.repository.UserRepository;
 import restaurant.menu.service.CrudOperation;
@@ -22,16 +24,23 @@ public class ProductService implements CrudOperation<Product> {
     private UserRepository userRepository;
 
     @Override
-    public void addElement(Product element) {
+    public void addElement(Product element) throws Exception {
         log.info("Enter into {}, start method: addElement", Product.class);
         try {
-            User user = userRepository.findById(element.getUser().getIdUser()).orElseThrow(() -> new EntityNotFoundException());
-            element.setUser(user);
-            element.setNumberItem(Utils.getUUID());
-            prodcutRepository.save(element);
-            log.info("Finished  method: addElement");
+            User user = userRepository.findById(element.getUser().getIdUser()).orElseThrow(EntityNotFoundException::new);
+            if (!user.isDeleteFlag()) {
+                element.setUser(user);
+                element.setNumberItem(Utils.getUUID());
+                prodcutRepository.save(element);
+                log.info("Finished  method: addElement");
+            } else {
+                throw new EntityDeletedException();
+            }
         } catch (EntityNotFoundException e) {
             log.error("Error into {}, not found entity User with ID {}, stack error: {}", Product.class, element.getUser().getIdUser(), e.getMessage());
+            throw new CustomEntityNotFoundException("Not found entity User with ID");
+        } catch (EntityDeletedException e){
+            throw new EntityDeletedException("Entity deleted from database");
         }
 
     }

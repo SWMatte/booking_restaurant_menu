@@ -1,6 +1,7 @@
 package restaurant.menu.service;
 
 import restaurant.menu.entities.User;
+import restaurant.menu.entities.dto.PasswordDTo;
 
 import java.util.Optional;
 
@@ -13,4 +14,6 @@ public interface UserSecurity {
      void addElement(User element);
 
      void updateElement(String email);
+
+     void changePassword(PasswordDTo passwordDTo) throws Exception;
 }

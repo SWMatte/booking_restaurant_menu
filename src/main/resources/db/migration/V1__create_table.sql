@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `customer` (
     `phone_number` VARCHAR(10),
     `address` VARCHAR(50) NOT NULL,
     `id_user` INT,
+    `delete_flag` BOOLEAN DEFAULT false,
     PRIMARY KEY (`id_customer`),
     FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`)
 );
