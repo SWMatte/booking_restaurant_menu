@@ -2,29 +2,19 @@ package restaurant.menu.service.imp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import restaurant.menu.entities.Pdf;
 
+import restaurant.menu.repository.OrderRepository;
 import restaurant.menu.repository.PdfRepository;
-import restaurant.menu.service.CrudOperation;
+
 
 @Service
-public class PdfService implements CrudOperation<Pdf> {
+public class PdfService   {
 
     @Autowired
     private PdfRepository pdfRepository;
 
-    @Override
-    public void addElement(Pdf element) {
-        
-    }
+    @Autowired
+    private OrderRepository orderRepository;
 
-    @Override
-    public void updateElement(Pdf element) {
 
-    }
-
-    @Override
-    public void deleteElement(int id) {
-
-    }
 }

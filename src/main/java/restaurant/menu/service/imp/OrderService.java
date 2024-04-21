@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import restaurant.menu.common.Utils;
-import restaurant.menu.entities.Customer;
 import restaurant.menu.entities.Order;
 import restaurant.menu.entities.Product;
 import restaurant.menu.entities.dto.OrderRequestDTO;
@@ -22,6 +21,7 @@ public class OrderService implements OrderOperation {
     private OrderRepository orderRepository;
     @Autowired
     private ProdcutRepository prodcutRepository;
+
 
 
     @Override
@@ -41,6 +41,7 @@ public class OrderService implements OrderOperation {
                             .build();
                     orderRepository.save(order);
                 }
+
 
                 log.info("Finished  method: addOrder");
             }

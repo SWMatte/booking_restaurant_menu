@@ -2,8 +2,10 @@ package restaurant.menu.entities;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -13,6 +15,8 @@ import java.util.UUID;
 @Data
 @Builder
 @Schema(description = "Entity Order")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
 
     @Id
