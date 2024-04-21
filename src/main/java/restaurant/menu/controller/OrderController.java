@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,12 @@ import org.springframework.web.bind.annotation.*;
 import restaurant.menu.aspect.Authorized;
 import restaurant.menu.entities.*;
 import restaurant.menu.entities.dto.OrderRequestDTO;
-import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.OrderOperation;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * This class has the role to contain the endpoint {@link Order}
@@ -49,13 +54,14 @@ public class OrderController {
 
             orderOperation.addOrder(element);
              log.info("registerOrder saved with success!");
-            return ResponseEntity.ok().body("Product added correctly");
+            return ResponseEntity.ok().body("Order added correctly");
         } catch (Exception e) {
             log.error("Can't save the order: " + e.getMessage());
             return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST);
 
         }
     }
+
 
 
 

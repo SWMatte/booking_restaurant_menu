@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ import restaurant.menu.exception.PasswordEncoderException;
 import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.UserSecurity;
 import restaurant.menu.service.token.AuthenticationService;
-
 /**
  * This class has the role to contain the endpoint {@link User}
  */
