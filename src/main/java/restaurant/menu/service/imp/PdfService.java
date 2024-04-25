@@ -4,7 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationWidget;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
@@ -60,22 +62,73 @@ public class PdfService implements PdfOperation {
             PDAcroForm pDAcroForm = pDDocument.getDocumentCatalog().getAcroForm(); // prende gli acroform segnati
             PDField field = pDAcroForm.getField("name_lastName"); // recupera ogni singolo acrofrom
             field.setValue(getPdfFieldDto.get(0).getName() + " " + getPdfFieldDto.get(0).getLastname());
+            field.setReadOnly(true);
             field = pDAcroForm.getField("email");
+            field.setReadOnly(true);
             field.setValue(getPdfFieldDto.get(0).getEmail());
             field = pDAcroForm.getField("indirizzo");
+            field.setReadOnly(true);
             field.setValue(getPdfFieldDto.get(0).getAddress());
             field = pDAcroForm.getField("data");
+            field.setReadOnly(true);
             field.setValue(getPdfFieldDto.get(0).getDateOrder());
 
-            for (PdfFieldDTO value : getPdfFieldDto) {
-                field = pDAcroForm.getField("nomeProdotto");
-                field.setValue(value.getNameProduct());
-                field = pDAcroForm.getField("prezzo");
-                field.setValue(value.getPriceProduct());
-                field = pDAcroForm.getField("tipo");
-                field.setValue(value.getTypeProduct());
+            PDPage page = pDDocument.getPage(0); // prendi la pagina 0
+            PDPageContentStream contentStream = new PDPageContentStream(pDDocument, page, PDPageContentStream.AppendMode.APPEND, true); // questo permette di sovrascrivere cio che ho nella pagina
+            float startX = 100; // Posizione X di partenza posizione sulla riga
+            float startY = 350; // Posizione Y di partenza posizione verso l'alto ( per scendere nel foglio abbassa il numero)
 
+            float fieldOffsetX = 150; // Offset orizzontale per i campi partendo da startX
+            float lineSpacing = 50; // Spazio verticale tra le righe
+            // Seleziona il font comune per testo e campi
+            PDType1Font commonFont = PDType1Font.HELVETICA;
+            for (int i = 0; i < getPdfFieldDto.size(); i++) {
+
+                float currentY = startY - (i * lineSpacing * 2); // Spazio tra le righe (2 linee per persona)
+                // Testo statico: " da inserire "
+                contentStream.setFont(commonFont, 11);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(startX, currentY);
+                contentStream.showText("Tipo Prodotto ");
+                contentStream.endText();
+                // Campo per il nome
+                PDTextField nameField = new PDTextField(pDAcroForm);
+                nameField.setPartialName("tipo_prodotto" + i);
+                // configurazione proprieta'
+                nameField.setReadOnly(true);
+                nameField.setValue(getPdfFieldDto.get(i).getTypeProduct().toLowerCase());
+                nameField.setDefaultAppearance("/Helvetica 11 Tf 0 g"); // Imposta il font e la dimensione
+                // aggiungi l'acroform al documento
+                pDAcroForm.getFields().add(nameField);
+
+                //Un "widget" è la rappresentazione visiva del campo sul PDF qua setti la configurazione come rettangolo e lo imposti
+                PDAnnotationWidget nameWidget = nameField.getWidgets().get(0);
+                PDRectangle nameRect = new PDRectangle(startX + fieldOffsetX, currentY - 5, 100, 20); // Posizione a metà riga
+                nameWidget.setRectangle(nameRect);
+                page.getAnnotations().add(nameWidget);
+
+
+                // Testo statico: "Il prezzo è:"
+                contentStream.beginText();
+                contentStream.setFont(commonFont,11);
+                contentStream.newLineAtOffset(startX, currentY - lineSpacing + (lineSpacing / 2)); // spazio fra tipo prodotto e prezzo
+                contentStream.showText("Prezzo ");
+                contentStream.endText();
+                // Campo per il prezzo
+                PDTextField ageField = new PDTextField(pDAcroForm);
+                ageField.setPartialName("prezzo_" + i);
+                ageField.setReadOnly(true);
+                ageField.setValue(getPdfFieldDto.get(i).getPriceProduct() + "Euro");
+                ageField.setDefaultAppearance("/Helvetica 11 Tf 0 g"); // Imposta il font e la dimensione
+                pDAcroForm.getFields().add(ageField);
+                PDAnnotationWidget ageWidget = ageField.getWidgets().get(0);
+                PDRectangle ageRect = new PDRectangle(startX + fieldOffsetX, currentY - lineSpacing +(lineSpacing / 2) , 150, 20);
+                ageWidget.setRectangle(ageRect);
+                page.getAnnotations().add(ageWidget);
             }
+
+            contentStream.close();
+
 
             pDDocument.save("C:\\Users\\Administrator\\Desktop\\MATTEO\\output.pdf");
             pDDocument.close();
