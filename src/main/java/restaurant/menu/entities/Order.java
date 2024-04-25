@@ -41,7 +41,7 @@ public class Order {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Order date", example = "2024-01-23")
     private LocalDate dateOrder;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_product")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "product Id", example = "1")
     private Product product;

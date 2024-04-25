@@ -9,7 +9,7 @@ import restaurant.menu.entities.Order;
 import restaurant.menu.entities.Product;
 import restaurant.menu.entities.dto.OrderRequestDTO;
 import restaurant.menu.repository.OrderRepository;
-import restaurant.menu.repository.ProdcutRepository;
+import restaurant.menu.repository.ProductRepository;
 import restaurant.menu.service.OrderOperation;
 
 import java.time.LocalDate;
@@ -20,7 +20,7 @@ public class OrderService implements OrderOperation {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private ProdcutRepository prodcutRepository;
+    private ProductRepository productRepository;
 
 
 
@@ -31,7 +31,7 @@ public class OrderService implements OrderOperation {
         try {
             if (!Utils.nullElement(orderRequestDTO)) {
                 for (Integer id : orderRequestDTO.getIdProduct()) {
-                    Product product = prodcutRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
+                    Product product = productRepository.findById(id).orElseThrow(EntityNotFoundException::new);
                     Order order = Order.builder()
                             .product(product)
                             .numberOrder(uuid)

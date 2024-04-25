@@ -9,7 +9,7 @@ import restaurant.menu.entities.Product;
 import restaurant.menu.entities.User;
 import restaurant.menu.exception.CustomEntityNotFoundException;
 import restaurant.menu.exception.EntityDeletedException;
-import restaurant.menu.repository.ProdcutRepository;
+import restaurant.menu.repository.ProductRepository;
 import restaurant.menu.repository.UserRepository;
 import restaurant.menu.service.CrudOperation;
 
@@ -18,7 +18,7 @@ import restaurant.menu.service.CrudOperation;
 public class ProductService implements CrudOperation<Product> {
 
     @Autowired
-    private ProdcutRepository prodcutRepository;
+    private ProductRepository productRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -31,7 +31,7 @@ public class ProductService implements CrudOperation<Product> {
             if (!user.isDeleteFlag()) {
                 element.setUser(user);
                 element.setNumberItem(Utils.getUUID());
-                prodcutRepository.save(element);
+                productRepository.save(element);
                 log.info("Finished  method: addElement");
             } else {
                 throw new EntityDeletedException();
@@ -49,7 +49,7 @@ public class ProductService implements CrudOperation<Product> {
     public void updateElement(Product element) {
         log.info("Enter into {}, start method: updateElement", Product.class);
         try {
-            Product productDB = prodcutRepository.findById(element.getIdProduct()).orElseThrow(() -> new EntityNotFoundException());
+            Product productDB = productRepository.findById(element.getIdProduct()).orElseThrow(() -> new EntityNotFoundException());
             if (!Utils.nullElement(element.getNameProduct())) {
                 productDB.setNameProduct(element.getNameProduct());
             }
@@ -62,7 +62,7 @@ public class ProductService implements CrudOperation<Product> {
             if (!Utils.nullElement(element.getType())) {
                 productDB.setType(element.getType());
             }
-            prodcutRepository.save(productDB);
+            productRepository.save(productDB);
             log.info("Finished  method: updateElement");
         } catch (EntityNotFoundException e) {
             log.error("Error into {}, not found entity Product with ID {}, stack error:{}", Product.class, element.getIdProduct(), e.getMessage());
@@ -74,8 +74,8 @@ public class ProductService implements CrudOperation<Product> {
     public void deleteElement(int id) {
         log.info("Enter into {}, start method: deleteElement", Product.class);
         try {
-            prodcutRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
-            prodcutRepository.deleteById(id);
+            productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
+            productRepository.deleteById(id);
             log.info("Finished  method: addElement");
         } catch (EntityNotFoundException e) {
             log.error("Error into {}, not found entity Product with ID {}, stack error:{}", Product.class, id, e.getMessage());

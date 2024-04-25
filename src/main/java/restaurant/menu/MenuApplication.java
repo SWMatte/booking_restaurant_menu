@@ -21,24 +21,6 @@ public class MenuApplication  implements WebMvcConfigurer {
 	public static void main(String[] args) {
 		SpringApplication.run(MenuApplication.class, args);
 
-
-		try {
-			File pdfFile = new File("java.pdf");
-			PDDocument pDDocument = PDDocument.load(pdfFile);
-			PDAcroForm pDAcroForm = pDDocument.getDocumentCatalog().getAcroForm();
-			PDField field = pDAcroForm.getField("txt_1");
-			field.setValue("This is a first field printed by Java");
-			field = pDAcroForm.getField("txt_2");
-			field.setValue("This is a second field printed by Java");
-			pDDocument.save("C:\\Users\\Administrator\\Desktop\\MATTEO\\output.pdf");
-			pDDocument.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-
-
-
 	}
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
