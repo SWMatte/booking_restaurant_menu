@@ -270,11 +270,10 @@ public class PdfService implements PdfOperation {
     public void processPdfFromDB(String  numberOrder) throws IOException {
         String operationSystem= getPathDesktop();
 
-        // Ricostruisci il PDF dal byte array
+        
         PDDocument pdfDocument = constructPdfFromDatabase(numberOrder);
 
-        // Fai qualcosa con il documento PDF
-        PDPage newPage = new PDPage(); // Aggiungi una nuova pagina
+        PDPage newPage = new PDPage(); 
         pdfDocument.addPage(newPage);
 
         PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, newPage);
@@ -284,9 +283,8 @@ public class PdfService implements PdfOperation {
         contentStream.showText("");
         contentStream.endText();
         contentStream.close();
-        // Salva il PDF su disco
         pdfDocument.save(operationSystem+"\\output1.pdf");
-        // Chiudi il PDF quando hai finito
+  
         pdfDocument.close();
     }
 
