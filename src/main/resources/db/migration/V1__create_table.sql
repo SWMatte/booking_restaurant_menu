@@ -47,10 +47,9 @@ CREATE TABLE IF NOT EXISTS `orders` (
 
 CREATE TABLE IF NOT EXISTS `pdf` (
     `id_pdf` int NOT NULL AUTO_INCREMENT,
-    `name_pdf` VARCHAR(255) NOT NULL,
-    `id_order` INT NOT NULL,
-    PRIMARY KEY (`id_pdf`),
-    FOREIGN KEY (`id_order`) REFERENCES `orders`(`id_order`)
+    `pdf_Data` BlOB,
+    `number_order` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`id_pdf`)
 );
 
 
