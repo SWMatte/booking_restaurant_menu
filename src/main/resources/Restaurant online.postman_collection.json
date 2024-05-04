@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"a@b.it\",\r\n    \"password\": \"123\",\r\n    \"role\": \"ADMINISTRATOR\",\r\n    \"name\":\"Matteo\",\r\n    \"lastName\":\"Pier\",\r\n    \"phoneNumber\":\"33333333\",\r\n    \"address\":\"via pippo 12\"\r\n}",
+							"raw": "{\r\n    \"email\": \"prova@gmail.com\",\r\n    \"password\": \"123\",\r\n    \"role\": \"ADMINISTRATOR\",\r\n    \"name\":\"Matteo\",\r\n    \"lastName\":\"Rossi\",\r\n    \"phoneNumber\":\"33333333\",\r\n    \"address\":\"via pippo 12\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -47,7 +47,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"a@b.it\",\r\n    \"password\": \"123\"\r\n}",
+							"raw": "{\r\n    \"email\": \"prova@gmail.com\",\r\n    \"password\": \"123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -283,6 +283,128 @@
 								"v1",
 								"order",
 								"addOrder"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pdf",
+			"item": [
+				{
+					"name": "Add Pdf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJhQGIuaXQiLCJzdWIiOiIxIiwiaWF0IjoxNzE0ODA5OTE1LCJleHAiOjE3MTQ4MTM1MTV9.1wyHc4sgvY8if-nbNoAj8NrbQDC_Iy3QDM0osAi0I58",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/pdf/addPdf?number=a7edb0dd-497b-4faa-9c42-77e8448eba6c",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"pdf",
+								"addPdf"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "a7edb0dd-497b-4faa-9c42-77e8448eba6c"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve pdf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJwcm92YUBnbWFpbC5jb20iLCJzdWIiOiIxIiwiaWF0IjoxNzE0ODI4OTM4LCJleHAiOjE3MTQ4MzI1Mzh9.o4Qj7DbGBd2k_i6sMM3g-oWXzMHxtg00XSGQCCMFMXc",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/pdf/retrievePdf?OrderNumber=f96eb127-efdc-4667-96bb-3ea90795440c",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"pdf",
+								"retrievePdf"
+							],
+							"query": [
+								{
+									"key": "OrderNumber",
+									"value": "f96eb127-efdc-4667-96bb-3ea90795440c"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get unprocessed orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJwcm92YUBnbWFpbC5jb20iLCJzdWIiOiIxIiwiaWF0IjoxNzE0ODMxNTA2LCJleHAiOjE3MTQ4MzUxMDZ9.0Jz059hIAqvUOXBvZvEM6EQwbDs-kBsg9WK1mjh8PbM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/pdf/getUnprocessedOrders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"pdf",
+								"getUnprocessedOrders"
 							]
 						}
 					},
