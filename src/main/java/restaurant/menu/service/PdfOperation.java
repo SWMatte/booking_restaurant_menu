@@ -1,6 +1,12 @@
 package restaurant.menu.service;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+
+import java.io.IOException;
+
 public interface PdfOperation {
 
-    void createPdf(String numberOrder);
+    PDDocument createPdf(String numberOrder) throws IOException;
+    void processPdfFromDB(String  numberOrder)throws IOException;
+
 }

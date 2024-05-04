@@ -14,18 +14,13 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import restaurant.menu.entities.Customer;
-import restaurant.menu.entities.Order;
-import restaurant.menu.entities.Product;
-import restaurant.menu.entities.User;
+import restaurant.menu.entities.*;
 import restaurant.menu.entities.dto.PdfFieldDTO;
 import restaurant.menu.entities.dto.ProductPdfResponseDTO;
-import restaurant.menu.repository.CustomerRepository;
-import restaurant.menu.repository.OrderRepository;
-import restaurant.menu.repository.PdfRepository;
-import restaurant.menu.repository.ProductRepository;
+import restaurant.menu.repository.*;
 import restaurant.menu.service.PdfOperation;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -47,12 +42,16 @@ public class PdfService implements PdfOperation {
     private final CustomerRepository customerRepository;
     @Autowired
     private final ProductRepository productRepository;
+    @Autowired
+    private final UserRepository userRepository;
 
 
     @Override
-    public void createPdf(String numberOrder) {
+    public PDDocument  createPdf(String numberOrder) throws IOException {
+        String operationSystem= getPathDesktop();
+
         List<Order> order = orderRepository.findByNumberOrder(numberOrder);
-        User user = orderRepository.getUserByEmailCustomerFromOrder(order.get(0).getEmailCustomer());
+        User user = userRepository.findByEmail(order.get(0).getEmailCustomer()).get();
         Customer customer = customerRepository.findCustomerByUser(user);
         List<PdfFieldDTO> getPdfFieldDto = getPdfFieldDto(customer, order);
         try {
@@ -128,23 +127,17 @@ public class PdfService implements PdfOperation {
             }
 
             contentStream.close();
+            pDDocument.save(operationSystem+"\\output.pdf");
 
 
-            pDDocument.save("C:\\Users\\Administrator\\Desktop\\MATTEO\\output.pdf");
-            pDDocument.close();
+            byte[] pdfBytes  = saveBytePdfWithUserToPdf(pDDocument);
+            savePdfToDatabase(pdfBytes,order.get(0));
 
+            return pDDocument;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException();
         }
-
-        //TODO: RICREARE SU LIBRE OFFICE LA TABELLA CON GLI ACROFORM
-        // TODO: 2) SETTARE METODO UNA VOLTA CREATO L'ORDINE CHE ALL'UTENTE RIMANGA L'ACQUISTO FATTO
-        // TODO: 3) CONVERTIRE LO STESSO IN UN ARRAY DI BYTE E SALVARLO SUL DB INSIEME ALL'UTENTE CHE FA L'ACQUISTO
-        // TODO: 4) RICONVERTIRLO IN PDF DA UN ALTRA PARTE ( COME SE FOSSE RICEVUTO DALL'AZIENDA A SEGUITO DELL'ORDINE EFFETTUATO)
-        // TODO: 5) RENDERE DINAMICA LA CARTELLA IN CUI VIENE SALVATO A PRESCINDERE DAL S.O. DELL'UTENTE
-        // TODO: 6) PRENDERE L'ARRAY DI BYTE QUINDI LO STESO PDF E INVIARLO ALL'UTENTE TRAMTIE EMAIL A ORDINE PROCESSATO
-
     }
 
 
@@ -199,4 +192,108 @@ public class PdfService implements PdfOperation {
 
     }
 
+
+    private String getPathDesktop(){
+         String osName = System.getProperty("os.name").toLowerCase();
+
+        if (osName.contains("win")) {
+            String userProfile = System.getenv("USERPROFILE");
+            return userProfile + "\\Desktop";
+        } else if (osName.contains("mac")) {
+            String userHome = System.getProperty("user.home");
+            return userHome + "/Desktop";
+        } else if (osName.contains("nix") || osName.contains("nux")) {
+            String userHome = System.getProperty("user.home");
+            return userHome + "/Desktop";
+        } else {
+            throw new UnsupportedOperationException("Operation system not supported");
+        }
+    }
+
+
+    /**
+     *
+     * @param pdDocument
+     * @return byte[] this method return an array of byte with inside the entire document PDF, is important close here the document after saved the outputstream
+     * @throws IOException
+     */
+    private  byte[] saveBytePdfWithUserToPdf(PDDocument pdDocument) throws IOException{
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdDocument.save(byteArrayOutputStream);
+        pdDocument.close();
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    /**
+     *
+     * @param pdfBytes
+     * @param order
+     * This method save into database a BLOB value to retrieve then in another one method the entire pdf
+     */
+    private void savePdfToDatabase(byte[] pdfBytes,Order order)   {
+        Pdf pdf = Pdf.builder()
+                .pdfData(pdfBytes)
+                .numberOrder(order.getNumberOrder())
+                .build();
+        pdfRepository.save(pdf);
+    }
+
+    private byte[] retrieveByteArrayFromDB(String order){
+        Pdf pdf = pdfRepository.findByNumberOrder(order);
+        byte[] bytes = pdf.getPdfData();
+        return bytes;
+    }
+
+
+    /**
+     *
+     * This method retrieve the PDF from the database based of the array of bytes
+     */
+    private PDDocument constructPdfFromDatabase(String numberOrder) throws IOException {
+        // Recupera il byte array dal database
+        byte[] pdfBytes = retrieveByteArrayFromDB(numberOrder);
+
+        // Ricostruisce il documento PDF dall'array di byte
+        PDDocument pdfDocument = PDDocument.load(pdfBytes);
+
+        return pdfDocument; // Restituisce il documento PDF ricostruito
+    }
+
+
+    /**
+     *
+     * @param numberOrder
+     * @throws IOException
+     *
+     *based of the order passed to the method add another one page to the PDF saved into the database
+     */
+    public void processPdfFromDB(String  numberOrder) throws IOException {
+        String operationSystem= getPathDesktop();
+
+        // Ricostruisci il PDF dal byte array
+        PDDocument pdfDocument = constructPdfFromDatabase(numberOrder);
+
+        // Fai qualcosa con il documento PDF
+        PDPage newPage = new PDPage(); // Aggiungi una nuova pagina
+        pdfDocument.addPage(newPage);
+
+        PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, newPage);
+        contentStream.beginText();
+        contentStream.setFont(PDType1Font.HELVETICA, 12);
+        contentStream.newLineAtOffset(100, 500);
+        contentStream.showText("");
+        contentStream.endText();
+        contentStream.close();
+        // Salva il PDF su disco
+        pdfDocument.save(operationSystem+"\\output1.pdf");
+        // Chiudi il PDF quando hai finito
+        pdfDocument.close();
+    }
+
+ //todo: AGGIUNGERE FLAG DOCUMENTO PROCESSATO
+  //  TODO: AGGIUNGERE DUE RIGHE CON SOMMA TOTALE PRODOTTI LEGGERE L'ACROFORM DEI VALORI E FARE LA SOMMA
+   // TODO: AGGIORNARE IL PDF DI BYTE SALVARLO NUOVAMENTE SUL DATABASE CON SPUNTA A TRUE E DATA SALVATAGGIO
+    //TODO: AGGIUNGERE METODO PER OGNI CUSTOMER IL RECAP DEI SUOI ORDINI
+    // TODO: AGGIUNGERE TABELLA TESSERA PUNTI, CONTERA' IN BASE AL NUMERO DI ORDINE QUANTI PRODOTTI HA PRESO PER OGNI PRODOTTO 1 PUNTO
+    //TODO: AGGIUNGERE UN ACROFORM SOMMA SPESA: E QUESTO VERRA' NEL CASO SCONTATO AL RAGGIUNGIMENTO DI 10 PUNTI CON UNO SCONTO PREVISTO
 }

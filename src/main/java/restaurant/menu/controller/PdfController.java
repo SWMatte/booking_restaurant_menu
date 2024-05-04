@@ -14,10 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import restaurant.menu.aspect.Authorized;
 import restaurant.menu.entities.Customer;
+import restaurant.menu.entities.Order;
 import restaurant.menu.entities.Role;
 import restaurant.menu.exception.CustomEntityNotFoundException;
 import restaurant.menu.service.CrudOperation;
 import restaurant.menu.service.PdfOperation;
+
+import java.io.IOException;
 
 /**
  * This class has the role to contain the endpoint {@link Customer}
@@ -27,7 +30,7 @@ import restaurant.menu.service.PdfOperation;
 @RequestMapping("/pdf")
 @Slf4j
 @RequiredArgsConstructor
-@Tag(name = "Customer controller",description = "The role of this controller is keep all endpoints about customer, every endpoint require a specific authentication")
+@Tag(name = "PdfController controller",description = "The role of this controller is keep all endpoints about pdf, every endpoint require a specific authentication")
 public class PdfController {
 
     @Autowired
@@ -36,23 +39,53 @@ public class PdfController {
     @PostMapping("/addPdf")
     @Authorized(roles = {Role.ADMINISTRATOR,Role.CUSTOMER})
     @Operation(
-            summary = "this endpoint works to update the customers",
-            tags = {"ProductController", "post/updateCustomer"}
+            summary = "this endpoint works to createPdf",
+            tags = {"PdfController", "post/addPdf"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = Customer.class), mediaType = "application/json")}),
             @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
 
     })
-    public ResponseEntity<?> updateCustomer(@RequestParam String number) {
-        log.info("Starting method updateCustomer in class: " + getClass());
+    public ResponseEntity<?> createPdf(@RequestParam String number) {
+        log.info("Starting method createPdf in class: " + getClass());
         try {
             pdfOperation.createPdf(number);
-            return ResponseEntity.ok().body("Customer updated correctly");
+            return ResponseEntity.ok().body("Pdf created correctly");
         } catch (CustomEntityNotFoundException e) {
-            log.error("Can't update the Customer: " + e.getMessage());
+            log.error("Can't createPdf : " + e.getMessage());
+            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ e.getMessage());  //TODO: provare nel caso a restituire un DTO come response formattato diversamente da questa response
+
+        } catch (IOException e){
+            return  ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ "Pdf already exist");
+        }
+    }
+
+
+
+
+    @PostMapping("/retrievePdf")
+    @Authorized(roles = {Role.ADMINISTRATOR,Role.CUSTOMER})
+    @Operation(
+            summary = "this endpoint works to retrievePdf from the database based of the order",
+            tags = {"PdfController", "post/retrievePdf"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = Customer.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
+    public ResponseEntity<?> retrievePdf(@RequestParam String OrderNumber) {
+        log.info("Starting method retrievePdf in class: " + getClass());
+        try {
+            pdfOperation.processPdfFromDB(OrderNumber);
+            return ResponseEntity.ok().body("Pdf retrieved correctly");
+        } catch (CustomEntityNotFoundException e) {
+            log.error("Can't retrieve the pdf : " + e.getMessage());
             return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ e.getMessage());
 
+        } catch (IOException e){
+            return  ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ "Pdf already retrieved");
         }
     }
 
