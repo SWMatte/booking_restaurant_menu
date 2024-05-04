@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS `pdf` (
     `id_pdf` int NOT NULL AUTO_INCREMENT,
     `pdf_Data` BlOB,
     `number_order` VARCHAR(255) NOT NULL,
+    `document_processed` BOOLEAN DEFAULT FALSE,
+    `date_saved` DATE,
     PRIMARY KEY (`id_pdf`)
 );
 
