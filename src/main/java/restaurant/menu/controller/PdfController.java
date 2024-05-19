@@ -90,6 +90,27 @@ public class PdfController {
     }
 
 
+    @GetMapping("/getUnprocessedOrders")
+    @Authorized(roles = {Role.ADMINISTRATOR,Role.CUSTOMER})
+    @Operation(
+            summary = "this endpoint works to retrieve unprocessed orders from the database",
+            tags = {"PdfController", "get/getUnprocessedOrders"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = Customer.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
+    public ResponseEntity<?> getUnprocessedOrders() {
+        log.info("Starting method getUnprocessedOrders in class: " + getClass());
+        try {
+            return ResponseEntity.ok().body(pdfOperation.retrieveUnprocessedOrder());
+        } catch (CustomEntityNotFoundException e) {
+            log.error("Can't retrieve the orders : " + e.getMessage());
+            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST +" "+ e.getMessage());
+        }
+    }
+
 
 
 }

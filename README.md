@@ -23,10 +23,12 @@ but basically a brief summary could be: " Application to book some specific prod
 
 Almost all endpoints require a token to complete the request.
 
-- the pdf entity will host the summary about purchase ( i'm still thinking how develop it )
+- the pdf entity will host the summary about purchase, actually after the order is booked
+another one API update the same PDF after it is processed. The pdf will be saved like array of bytes on the database.
 
 
 ### in the resources file you can find the collection of postman
+
 
 ## Licenza
 
@@ -39,5 +41,5 @@ This project is licensed under the terms of the [MIT License](LICENSE).
     - SWMatte
 
 ## Final result pdf
-The result of the pdf after the order was placed:
+The result of the pdf after the order was placed
 ![img.png](img.png)

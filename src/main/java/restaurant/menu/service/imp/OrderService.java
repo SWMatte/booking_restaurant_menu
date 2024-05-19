@@ -50,5 +50,11 @@ public class OrderService implements OrderOperation {
         }
     }
 
+    @Override
+    public int getNumbersOrder(String email) {
+        int number= orderRepository.getNumberOrders(email);
+        return number;
+    }
+
 
 }

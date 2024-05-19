@@ -1,6 +1,5 @@
 package restaurant.menu.service.imp;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import restaurant.menu.entities.*;
 import restaurant.menu.entities.dto.PdfFieldDTO;
 import restaurant.menu.entities.dto.ProductPdfResponseDTO;
+import restaurant.menu.entities.dto.UnprocessedOrderDTO;
 import restaurant.menu.repository.*;
 import restaurant.menu.service.PdfOperation;
 
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -47,8 +48,8 @@ public class PdfService implements PdfOperation {
 
 
     @Override
-    public PDDocument  createPdf(String numberOrder) throws IOException {
-        String operationSystem= getPathDesktop();
+    public PDDocument createPdf(String numberOrder) throws IOException {
+        String operationSystem = getPathDesktop();
 
         List<Order> order = orderRepository.findByNumberOrder(numberOrder);
         User user = userRepository.findByEmail(order.get(0).getEmailCustomer()).get();
@@ -83,7 +84,7 @@ public class PdfService implements PdfOperation {
             PDType1Font commonFont = PDType1Font.HELVETICA;
             for (int i = 0; i < getPdfFieldDto.size(); i++) {
 
-                float currentY = startY - (i * lineSpacing * 2); // Spazio tra le righe (2 linee per persona)
+                float currentY = startY - (i * lineSpacing * 1); // Spazio tra le righe (2 linee per persona)
                 // Testo statico: " da inserire "
                 contentStream.setFont(commonFont, 11);
                 contentStream.beginText();
@@ -106,10 +107,9 @@ public class PdfService implements PdfOperation {
                 nameWidget.setRectangle(nameRect);
                 page.getAnnotations().add(nameWidget);
 
-
                 // Testo statico: "Il prezzo è:"
                 contentStream.beginText();
-                contentStream.setFont(commonFont,11);
+                contentStream.setFont(commonFont, 11);
                 contentStream.newLineAtOffset(startX, currentY - lineSpacing + (lineSpacing / 2)); // spazio fra tipo prodotto e prezzo
                 contentStream.showText("Prezzo ");
                 contentStream.endText();
@@ -121,17 +121,17 @@ public class PdfService implements PdfOperation {
                 ageField.setDefaultAppearance("/Helvetica 11 Tf 0 g"); // Imposta il font e la dimensione
                 pDAcroForm.getFields().add(ageField);
                 PDAnnotationWidget ageWidget = ageField.getWidgets().get(0);
-                PDRectangle ageRect = new PDRectangle(startX + fieldOffsetX, currentY - lineSpacing +(lineSpacing / 2) , 150, 20);
+                PDRectangle ageRect = new PDRectangle(startX + fieldOffsetX, currentY - lineSpacing + (lineSpacing / 2), 150, 20);
                 ageWidget.setRectangle(ageRect);
                 page.getAnnotations().add(ageWidget);
             }
 
             contentStream.close();
-            pDDocument.save(operationSystem+"\\output.pdf");
+            pDDocument.save(operationSystem + "\\output.pdf");
 
 
-            byte[] pdfBytes  = saveBytePdfWithUserToPdf(pDDocument);
-            savePdfToDatabase(pdfBytes,order.get(0));
+            byte[] pdfBytes = saveDocumentInByteArray(pDDocument);
+            savePdfToDatabase(pdfBytes, order.get(0));
 
             return pDDocument;
 
@@ -193,8 +193,8 @@ public class PdfService implements PdfOperation {
     }
 
 
-    private String getPathDesktop(){
-         String osName = System.getProperty("os.name").toLowerCase();
+    private String getPathDesktop() {
+        String osName = System.getProperty("os.name").toLowerCase();
 
         if (osName.contains("win")) {
             String userProfile = System.getenv("USERPROFILE");
@@ -212,12 +212,11 @@ public class PdfService implements PdfOperation {
 
 
     /**
-     *
      * @param pdDocument
      * @return byte[] this method return an array of byte with inside the entire document PDF, is important close here the document after saved the outputstream
      * @throws IOException
      */
-    private  byte[] saveBytePdfWithUserToPdf(PDDocument pdDocument) throws IOException{
+    private byte[] saveDocumentInByteArray(PDDocument pdDocument) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdDocument.save(byteArrayOutputStream);
         pdDocument.close();
@@ -225,20 +224,25 @@ public class PdfService implements PdfOperation {
     }
 
     /**
-     *
      * @param pdfBytes
-     * @param order
-     * This method save into database a BLOB value to retrieve then in another one method the entire pdf
+     * @param order    This method save into database a BLOB value to retrieve then in another one method the entire pdf
      */
-    private void savePdfToDatabase(byte[] pdfBytes,Order order)   {
-        Pdf pdf = Pdf.builder()
-                .pdfData(pdfBytes)
-                .numberOrder(order.getNumberOrder())
-                .build();
-        pdfRepository.save(pdf);
+    private void savePdfToDatabase(byte[] pdfBytes, Order order) {
+        Optional<Pdf> pdf1 = Optional.ofNullable(pdfRepository.findByNumberOrder(order.getNumberOrder()));
+        if (pdf1.isEmpty()) {
+            Pdf pdf = Pdf.builder()
+                    .pdfData(pdfBytes)
+                    .numberOrder(order.getNumberOrder())
+                    .build();
+            pdfRepository.save(pdf);
+        }else {
+            pdf1.get().setPdfData(pdfBytes);
+            pdfRepository.save(pdf1.get());
+        }
+
     }
 
-    private byte[] retrieveByteArrayFromDB(String order){
+    private byte[] retrieveByteArrayFromDB(String order) {
         Pdf pdf = pdfRepository.findByNumberOrder(order);
         byte[] bytes = pdf.getPdfData();
         return bytes;
@@ -246,8 +250,7 @@ public class PdfService implements PdfOperation {
 
 
     /**
-     *
-     * This method retrieve the PDF from the database based of the array of bytes
+     * This method retrieve the PDF from the database based of the array of bytes and build again the document
      */
     private PDDocument constructPdfFromDatabase(String numberOrder) throws IOException {
         // Recupera il byte array dal database
@@ -261,38 +264,46 @@ public class PdfService implements PdfOperation {
 
 
     /**
-     *
      * @param numberOrder
-     * @throws IOException
-     *
-     *based of the order passed to the method add another one page to the PDF saved into the database
+     * @throws IOException based of the order passed to the method add another one page to the PDF saved into the database
      */
-    public void processPdfFromDB(String  numberOrder) throws IOException {
-        String operationSystem= getPathDesktop();
-
-        // Ricostruisci il PDF dal byte array
+    public void processPdfFromDB(String numberOrder) throws IOException {
+        String operationSystem = getPathDesktop();
+        // Ricrea il documento pdf
         PDDocument pdfDocument = constructPdfFromDatabase(numberOrder);
+        // aggiungo una pagina per facs simile elaborazione dal ristorante
 
-        // Fai qualcosa con il documento PDF
         PDPage newPage = new PDPage(); // Aggiungi una nuova pagina
         pdfDocument.addPage(newPage);
-
         PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, newPage);
         contentStream.beginText();
-        contentStream.setFont(PDType1Font.HELVETICA, 12);
-        contentStream.newLineAtOffset(100, 500);
-        contentStream.showText("");
+        contentStream.setFont(PDType1Font.HELVETICA, 11);
+        contentStream.newLineAtOffset(100, 650);
+        contentStream.showText("Grazie per l'acquisto il tuo ordine è stato processato");
         contentStream.endText();
         contentStream.close();
         // Salva il PDF su disco
-        pdfDocument.save(operationSystem+"\\output1.pdf");
-        // Chiudi il PDF quando hai finito
-        pdfDocument.close();
+        pdfDocument.save(operationSystem + "\\output1.pdf");
+
+        byte[] pdfBytes = saveDocumentInByteArray(pdfDocument);
+
+        Pdf pdf = pdfRepository.findByNumberOrder(numberOrder);
+        pdf.setPdfData(pdfBytes);
+        pdf.setDateSaved(LocalDate.now());
+        pdf.setDocumentProcessed(true);
+        pdfRepository.save(pdf);
+
     }
 
- //todo: AGGIUNGERE FLAG DOCUMENTO PROCESSATO
-  //  TODO: AGGIUNGERE DUE RIGHE CON SOMMA TOTALE PRODOTTI LEGGERE L'ACROFORM DEI VALORI E FARE LA SOMMA
-   // TODO: AGGIORNARE IL PDF DI BYTE SALVARLO NUOVAMENTE SUL DATABASE CON SPUNTA A TRUE E DATA SALVATAGGIO
+    /**
+     * This method allow to retrieve all order unprocessed from the database
+     */
+    public List<UnprocessedOrderDTO> retrieveUnprocessedOrder(){
+        List<UnprocessedOrderDTO> listOrderUnprocessed =pdfRepository.findUnprocessedOrders();
+        return listOrderUnprocessed;
+    }
+
+    //  TODO: AGGIUNGERE DUE RIGHE CON SOMMA TOTALE PRODOTTI LEGGERE L'ACROFORM DEI VALORI E FARE LA SOMMA
     //TODO: AGGIUNGERE METODO PER OGNI CUSTOMER IL RECAP DEI SUOI ORDINI
     // TODO: AGGIUNGERE TABELLA TESSERA PUNTI, CONTERA' IN BASE AL NUMERO DI ORDINE QUANTI PRODOTTI HA PRESO PER OGNI PRODOTTO 1 PUNTO
     //TODO: AGGIUNGERE UN ACROFORM SOMMA SPESA: E QUESTO VERRA' NEL CASO SCONTATO AL RAGGIUNGIMENTO DI 10 PUNTI CON UNO SCONTO PREVISTO

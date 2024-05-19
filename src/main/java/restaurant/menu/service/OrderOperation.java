@@ -5,4 +5,6 @@ import restaurant.menu.entities.dto.OrderRequestDTO;
 public interface OrderOperation {
 
     void addOrder(OrderRequestDTO orderRequestDTO);
+
+    int getNumbersOrder(String email);
 }

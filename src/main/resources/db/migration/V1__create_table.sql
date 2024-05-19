@@ -49,9 +49,15 @@ CREATE TABLE IF NOT EXISTS `pdf` (
     `id_pdf` int NOT NULL AUTO_INCREMENT,
     `pdf_Data` BlOB,
     `number_order` VARCHAR(255) NOT NULL,
+    `document_processed` BOOLEAN DEFAULT FALSE,
+    `date_saved` DATE,
     PRIMARY KEY (`id_pdf`)
 );
 
-
-
-
+CREATE PROCEDURE customer_numbers_orders(IN email VARCHAR(50), OUT number int)
+BEGIN
+	SELECT COUNT(DISTINCT number_order) AS distinct_order_count
+	INTO number
+	FROM orders
+	WHERE email_customer = email;
+END ;
