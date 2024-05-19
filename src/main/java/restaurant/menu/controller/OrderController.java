@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,7 @@ import restaurant.menu.entities.*;
 import restaurant.menu.entities.dto.OrderRequestDTO;
 import restaurant.menu.service.OrderOperation;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 
 /**
  * This class has the role to contain the endpoint {@link Order}
@@ -62,6 +58,32 @@ public class OrderController {
         }
     }
 
+
+
+
+    @GetMapping("/numberOrder")
+    @Authorized(roles = {Role.ADMINISTRATOR,Role.CUSTOMER})
+    @Operation(
+            summary = "this endpoint works to get  the number of orders from each customer",
+            tags = {"ProductController", "get/numberOrder"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = Order.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "Params not valid", content = {@Content(schema = @Schema())})
+
+    })
+    public ResponseEntity<?> getNumberOrders(@RequestParam String email) {
+        log.info("Starting method getNumberOrders in class: " + getClass());
+        try {
+
+            log.info("Numbers of orders retrieved correctly!");
+            return ResponseEntity.ok().body( orderOperation.getNumbersOrder(email));
+        } catch (Exception e) {
+            log.error("Can't retrieve the number from the SP: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(HttpStatus.BAD_REQUEST);
+
+        }
+    }
 
 
 

@@ -54,6 +54,10 @@ CREATE TABLE IF NOT EXISTS `pdf` (
     PRIMARY KEY (`id_pdf`)
 );
 
-
-
-
+CREATE PROCEDURE customer_numbers_orders(IN email VARCHAR(50), OUT number int)
+BEGIN
+	SELECT COUNT(DISTINCT number_order) AS distinct_order_count
+	INTO number
+	FROM orders
+	WHERE email_customer = email;
+END ;

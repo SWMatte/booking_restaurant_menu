@@ -47,9 +47,6 @@ public class Order {
     private Product product;
 
 
-    // TODO: per risalire al customer che ha effettuato l'ordine con nome ecc, puoi utilizzare con la clausola with in sql
-    //       fai ritornare l'id user usando l'email che trovi nell'order quell'id lo usi nel customer per trovare nome congome di chi ha effettuato l'ordine
-    //      quindi puoi poi utilizzare quel dato per magari fare il cart o un riepilogo ( magari anche pdf)
 
 
 }
